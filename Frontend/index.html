@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Street Light Fault Register</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: #f4f6f8;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+        input,
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+        }
+        button:hover:not(:disabled) {
+            background: #2563eb;
+        }
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        #message {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        #message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        #message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .divider {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 24px 0;
+        }
+        .nav-link {
+            display: inline-block;
+            margin-top: 12px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🚦 Report a Street Light Fault</h1>
+        <p class="subtitle">Complaint Desk — fill in the details and submit</p>
+
+        <form id="faultForm">
+            <div class="row">
+                <div class="form-group">
+                    <label for="pole_id">Pole ID *</label>
+                    <input type="text" id="pole_id" placeholder="e.g. P-101" required />
+                </div>
+                <div class="form-group">
+                    <label for="ward">Ward</label>
+                    <input type="text" id="ward" placeholder="e.g. Ward 5" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="street">Street *</label>
+                <input type="text" id="street" placeholder="Street name" required />
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="reported_date">Reported Date *</label>
+                    <input type="date" id="reported_date" required />
+                </div>
+                <div class="form-group">
+                    <label for="fault_type">Fault Type</label>
+                    <select id="fault_type">
+                        <option value="Bulb Fuse">Bulb Fuse</option>
+                        <option value="Cable Cut">Cable Cut</option>
+                        <option value="Pole Damaged">Pole Damaged</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status">
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Repaired">Repaired</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submitBtn">Submit Report</button>
+        </form>
+
+        <div id="message"></div>
+
+        <hr class="divider" />
+
+        <a href="#" class="nav-link" id="viewListLink">📋 View All Faults →</a>
+        <p style="margin-top: 6px; font-size: 13px; color: #94a3b8;">(You'll build the list view in the next step)</p>
+    </div>
+
+    <script>
+        const form = document.getElementById('faultForm');
+        const messageEl = document.getElementById('message');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Set today's date as default
+        document.getElementById('reported_date').value = new Date().toISOString().split('T')[0];
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Hide any previous message
+            messageEl.style.display = 'none';
+            messageEl.className = '';
+
+            // --- Collect data ---
+            const payload = {
+                pole_id: document.getElementById('pole_id').value.trim(),
+                ward: document.getElementById('ward').value.trim(),
+                street: document.getElementById('street').value.trim(),
+                reported_date: document.getElementById('reported_date').value,
+                fault_type: document.getElementById('fault_type').value,
+                status: document.getElementById('status').value,
+            };
+
+            // --- Loading state ---
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const response = await fetch('/api/faults', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // --- Show the server's error message (RED) ---
+                    showMessage(data.error || 'Something went wrong', 'error');
+                    // CRITICAL: NEVER show success on failure
+                    return;
+                }
+
+                // --- SUCCESS: Show green message with days outstanding ---
+                const days = data.days_outstanding || 0;
+                showMessage(
+                    `✅ Fault reported successfully! (ID: ${data.fault.fault_id}) — Outstanding for ${days} day${days !== 1 ? 's' : ''}.`,
+                    'success'
+                );
+
+                // Clear the form (only on success)
+                form.reset();
+                document.getElementById('reported_date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('pole_id').focus();
+
+            } catch (error) {
+                // --- NETWORK ERROR: Show red message, NEVER say success ---
+                showMessage('❌ Network error. Please check your connection and try again.', 'error');
+                console.error('Fetch error:', error);
+            } finally {
+                // --- Reset button state ---
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Report';
+            }
+        });
+
+        function showMessage(text, type) {
+            messageEl.textContent = text;
+            messageEl.className = type; // 'success' or 'error'
+            messageEl.style.display = 'block';
+        }
+
+        // --- Link to List View (placeholder for Job 5) ---
+        document.getElementById('viewListLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('📋 List View will be built in Job 5! Stay tuned.');
+        });
+    </script>
+
+</body>
+</html>

@@ -1,12 +1,14 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const database = require('better-sqlite3');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: '*' }));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
-const PORT = 3000;
+const PORT = 2000;
 
 const db = new database('faults.db');
 
