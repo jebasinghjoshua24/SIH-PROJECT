@@ -83,6 +83,44 @@ seedData.forEach(row => insert.run(row));
 
 console.log(`✅ Seeded ${seedData.length} faults into the database`);
 
+app.post('/api/faults',  (req, res) => {
+    const { pole_id, ward, street, reported_date, fault_type, status, repaired_date } = req.body;
+
+    if (!pole_id || pole_id.trim() === '') {
+        return res.status(400).json({ error: 'Pole ID is required' });
+    }
+    if (!street || street.trim() === '') {
+        return res.status(400).json({ error: 'Street is required' });
+    }
+    if (!reported_date || isNaN(new Date(reported_date))) {
+        return res.status(400).json({ error: 'Valid reported date is required' });
+    }
+    if (new Date(reported_date) > new Date()) {
+        return res.status(400).json({ error: 'Reported date cannot be in the future' });
+    }
+
+    const today = new Date();
+    const reportDate = new Date(reported_date);
+    const daysOutstanding = Math.floor((today - reportDate) / (1000 * 60 * 60 * 24));
+
+    const info = insert.run(
+        pole_id.trim(),
+        ward ? ward.trim() : null,
+        street.trim(),
+        reported_date,
+        fault_type || 'Bulb Fuse',
+        status || 'Pending',
+        repaired_date || null
+    );
+
+    const newFault = db.prepare('SELECT * FROM faults WHERE fault_id = ?').get(info.lastInsertRowid);
+
+    res.status(201).json({
+        fault: newFault,
+        days_outstanding: daysOutstanding
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
