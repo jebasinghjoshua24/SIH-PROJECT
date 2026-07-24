@@ -20,7 +20,7 @@ db.exec(`
         street TEXT,
         reported_date TEXT NOT NULL,
         fault_type TEXT NOT NULL,
-        status TEXT DEFAULT 'Pending',
+        status TEXT DEFAULT "Pending",
         repaired_date TEXT
     );
 `);
@@ -120,6 +120,63 @@ app.post('/api/faults',  (req, res) => {
     res.status(201).json({
         fault: newFault,
         days_outstanding: daysOutstanding
+    });
+});
+
+app.get('/api/faults', (req, res) => {
+    const { search, status } = req.query;
+    
+    // --- Build the SQL query dynamically ---
+    let sql = 'SELECT * FROM faults WHERE 1=1';
+    const params = [];
+    
+    if (status) {
+        sql += ' AND status = ?';
+        params.push(status);
+    }
+    
+    if (search && search.trim() !== '') {
+        sql += ' AND (street LIKE ? OR pole_id LIKE ?)';
+        const searchTerm = `%${search.trim()}%`;
+        params.push(searchTerm, searchTerm);
+    }
+    
+    // --- FIXED: Use single quotes for string literals ---
+    sql += ` ORDER BY CASE 
+        WHEN status = 'Pending' THEN 0 
+        WHEN status = 'In Progress' THEN 1 
+        ELSE 2 
+    END, reported_date ASC`;
+    
+    // --- Execute the query ---
+    const stmt = db.prepare(sql);
+    const faults = stmt.all(...params);
+    
+    // --- Calculate days_outstanding for EVERY record on the server ---
+    const today = new Date();
+    const results = faults.map(fault => {
+        let daysOutstanding = 0;
+        
+        // Only calculate if NOT repaired
+        if (fault.status !== 'Repaired') {
+            const reportDate = new Date(fault.reported_date);
+            // Handle future dates gracefully (they show as 0)
+            if (reportDate <= today) {
+                daysOutstanding = Math.floor((today - reportDate) / (1000 * 60 * 60 * 24));
+            } else {
+                daysOutstanding = 0; // Future date = 0 days outstanding
+            }
+        }
+        
+        return {
+            ...fault,
+            days_outstanding: daysOutstanding
+        };
+    });
+    
+    res.json({
+        faults: results,
+        count: results.length
     });
 });
 
