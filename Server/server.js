@@ -12,6 +12,8 @@ const PORT = 2000;
 
 const db = new database('faults.db');
 
+db.exec('DROP TABLE IF EXISTS faults');
+
 db.exec(`
     CREATE TABLE IF NOT EXISTS faults (
         fault_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,8 +26,6 @@ db.exec(`
         repaired_date TEXT
     );
 `);
-
-db.exec('DELETE FROM faults');
 
 const insert = db.prepare(`
     INSERT INTO faults (pole_id, ward, street, reported_date, fault_type, status, repaired_date)

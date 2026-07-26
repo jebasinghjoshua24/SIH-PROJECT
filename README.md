@@ -64,13 +64,14 @@ List all faults. Supports:
 - ✅ Handles awkward data (missing ward, future dates, similar names)
 
 ## Screenshots
-
-*(Insert your screenshots here)*
-
 1. Register Page
+![image alt](https://github.com/jebasinghjoshua24/SIH-PROJECT/blob/main/Form.png?raw=true)
 2. List Page
+![image alt](https://github.com/jebasinghjoshua24/SIH-PROJECT/blob/main/List.png?raw=true)
 3. Search Results (e.g., "Main" showing Main + Maine)
+![image alt](https://github.com/jebasinghjoshua24/SIH-PROJECT/blob/main/List.png?raw=true)
 4. Error State (e.g., network failure)
+![image alt](https://github.com/jebasinghjoshua24/SIH-PROJECT/blob/main/Search.png?raw=true)
 
 ## Video Demonstration
 
