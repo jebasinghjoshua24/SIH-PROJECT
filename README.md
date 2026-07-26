@@ -75,6 +75,6 @@ List all faults. Supports:
 
 ## Video Demonstration
 
-https://drive.google.com/drive/folders/1O2NZdYRzqeLjvE8JFxeCJDReBAHREasO?usp=sharing
+https://github.com/user-attachments/assets/a52644c9-99f3-4a4f-bfd4-df238ea3b182
 
 All tasks completed as per the problem statement.
