@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Street Light Fault Register</title>
+    <title>Fault List - Street Light Register</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +18,7 @@
             justify-content: center;
         }
         .container {
-            max-width: 700px;
+            max-width: 1200px;
             width: 100%;
             background: white;
             border-radius: 16px;
@@ -29,90 +29,167 @@
             font-size: 24px;
             font-weight: 600;
             color: #1e293b;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         .subtitle {
             color: #64748b;
             font-size: 14px;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
-        .form-group {
-            margin-bottom: 18px;
+        .controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
         }
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #334155;
-            margin-bottom: 5px;
-        }
-        input,
-        select {
-            width: 100%;
+        .controls input,
+        .controls select {
             padding: 10px 14px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 14px;
-            transition: 0.2s;
+            flex: 1;
+            min-width: 160px;
         }
-        input:focus,
-        select:focus {
+        .controls input:focus,
+        .controls select:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
+        .controls button {
+            padding: 10px 20px;
             background: #3b82f6;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: 0.2s;
-            margin-top: 8px;
+            white-space: nowrap;
         }
-        button:hover:not(:disabled) {
+        .controls button:hover {
             background: #2563eb;
         }
-        button:disabled {
+        .controls .clear-btn {
             background: #94a3b8;
-            cursor: not-allowed;
         }
-        #message {
-            margin-top: 16px;
-            padding: 12px 16px;
-            border-radius: 8px;
+        .controls .clear-btn:hover {
+            background: #64748b;
+        }
+        .controls .refresh-btn {
+            background: #22c55e;
+        }
+        .controls .refresh-btn:hover {
+            background: #16a34a;
+        }
+        .record-count {
             font-size: 14px;
-            display: none;
+            color: #64748b;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            display: inline-block;
         }
-        #message.success {
-            display: block;
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        thead {
+            background: #f1f5f9;
+        }
+        th {
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 600;
+            color: #334155;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+        tr:hover {
+            background: #f8fafc;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-Pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-InProgress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .status-Repaired {
             background: #dcfce7;
             color: #166534;
-            border: 1px solid #bbf7d0;
         }
-        #message.error {
-            display: block;
-            background: #fee2e2;
+        .days-badge {
+            font-weight: 600;
+            color: #dc2626;
+        }
+        .days-badge.zero {
+            color: #94a3b8;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            font-size: 16px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+        .empty-state h3 {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .empty-state button {
+            margin-top: 12px;
+            padding: 8px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .error-state {
+            text-align: center;
+            padding: 40px 20px;
             color: #991b1b;
+            background: #fee2e2;
+            border-radius: 8px;
             border: 1px solid #fecaca;
         }
-        .divider {
+        .error-state button {
+            margin-top: 12px;
+            padding: 8px 20px;
+            background: #3b82f6;
+            color: white;
             border: none;
-            border-top: 1px solid #e2e8f0;
-            margin: 24px 0;
+            border-radius: 6px;
+            cursor: pointer;
         }
         .nav-link {
             display: inline-block;
-            margin-top: 12px;
+            margin-top: 20px;
             color: #3b82f6;
             text-decoration: none;
             font-size: 14px;
@@ -120,138 +197,245 @@
         .nav-link:hover {
             text-decoration: underline;
         }
+        .divider {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 20px 0;
+        }
+        .highlight {
+            background-color: #fef9c3 !important;
+        }
+        .missing {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .repair-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .repair-btn:hover {
+            background: #16a34a;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>🚦 Report a Street Light Fault</h1>
-        <p class="subtitle">Complaint Desk — fill in the details and submit</p>
+        <h1>📋 Street Light Fault Register</h1>
+        <p class="subtitle">Electrical Section — view, search, and filter all reported faults</p>
 
-        <form id="faultForm">
-            <div class="row">
-                <div class="form-group">
-                    <label for="pole_id">Pole ID *</label>
-                    <input type="text" id="pole_id" placeholder="e.g. P-101" required />
-                </div>
-                <div class="form-group">
-                    <label for="ward">Ward</label>
-                    <input type="text" id="ward" placeholder="e.g. Ward 5" />
-                </div>
-            </div>
+        <!-- Controls -->
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="🔍 Search by pole or street..." />
+            <select id="statusFilter">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Repaired">Repaired</option>
+            </select>
+            <button id="searchBtn">Search</button>
+            <button id="clearBtn" class="clear-btn">Clear</button>
+            <button id="refreshBtn" class="refresh-btn">↻ Refresh</button>
+        </div>
 
-            <div class="form-group">
-                <label for="street">Street *</label>
-                <input type="text" id="street" placeholder="Street name" required />
-            </div>
+        <!-- Record Count -->
+        <div class="record-count" id="recordCount">Loading records...</div>
 
-            <div class="row">
-                <div class="form-group">
-                    <label for="reported_date">Reported Date *</label>
-                    <input type="date" id="reported_date" required />
-                </div>
-                <div class="form-group">
-                    <label for="fault_type">Fault Type</label>
-                    <select id="fault_type">
-                        <option value="Bulb Fuse">Bulb Fuse</option>
-                        <option value="Cable Cut">Cable Cut</option>
-                        <option value="Pole Damaged">Pole Damaged</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="status">Status</label>
-                <select id="status">
-                    <option value="Pending">Pending</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Repaired">Repaired</option>
-                </select>
-            </div>
-
-            <button type="submit" id="submitBtn">Submit Report</button>
-        </form>
-
-        <div id="message"></div>
+        <!-- Table -->
+        <div class="table-wrapper" id="tableContainer">
+            <div class="loading">Loading faults</div>
+        </div>
 
         <hr class="divider" />
 
-        <a href="/list.html" class="nav-link">📋 View All Faults →</a>
+        <a href="/" class="nav-link">➕ Report a New Fault →</a>
     </div>
 
     <script>
-        const form = document.getElementById('faultForm');
-        const messageEl = document.getElementById('message');
-        const submitBtn = document.getElementById('submitBtn');
+        const API_BASE = '/api/faults';
+        const tableContainer = document.getElementById('tableContainer');
+        const recordCount = document.getElementById('recordCount');
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
 
-        // Set today's date as default
-        document.getElementById('reported_date').value = new Date().toISOString().split('T')[0];
+        let currentData = [];
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // ---- Fetch and render ----
+        async function fetchFaults() {
+            const search = searchInput.value.trim();
+            const status = statusFilter.value;
 
-            // Hide any previous message
-            messageEl.style.display = 'none';
-            messageEl.className = '';
+            // Build URL with query params
+            let url = API_BASE;
+            const params = [];
+            if (search) params.push(`search=${encodeURIComponent(search)}`);
+            if (status) params.push(`status=${encodeURIComponent(status)}`);
+            if (params.length > 0) url += '?' + params.join('&');
 
-            // --- Collect data ---
-            const payload = {
-                pole_id: document.getElementById('pole_id').value.trim(),
-                ward: document.getElementById('ward').value.trim(),
-                street: document.getElementById('street').value.trim(),
-                reported_date: document.getElementById('reported_date').value,
-                fault_type: document.getElementById('fault_type').value,
-                status: document.getElementById('status').value,
-            };
-
-            // --- Loading state ---
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
+            // Show loading state
+            tableContainer.innerHTML = '<div class="loading">Loading faults</div>';
+            recordCount.textContent = 'Loading...';
 
             try {
-                const response = await fetch('/api/faults', {
-                    method: 'POST',
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+
+                const data = await response.json();
+                currentData = data.faults || [];
+                renderTable(currentData);
+                recordCount.textContent = `Showing ${currentData.length} record${currentData.length !== 1 ? 's' : ''}`;
+
+            } catch (error) {
+                // ---- ERROR STATE ----
+                tableContainer.innerHTML = `
+                    <div class="error-state">
+                        <strong>❌ Failed to load faults</strong>
+                        <p style="margin-top: 8px;">${error.message || 'Please check your connection and try again.'}</p>
+                        <button onclick="fetchFaults()">🔄 Retry</button>
+                    </div>
+                `;
+                recordCount.textContent = '⚠️ Error loading records';
+                console.error('Fetch error:', error);
+            }
+        }
+
+        // ---- Update fault status ----
+        async function updateStatus(id, newStatus, version) {
+            const confirmed = confirm(`Mark fault #${id} as "${newStatus}"?`);
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch(`/api/faults/${id}`, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify({ 
+                        status: newStatus, 
+                        version: version 
+                    })
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // --- Show the server's error message (RED) ---
-                    showMessage(data.error || 'Something went wrong', 'error');
-                    // CRITICAL: NEVER show success on failure
+                    if (response.status === 409) {
+                        alert('❌ Conflict! Another user updated this fault. Refreshing...');
+                    } else {
+                        alert(data.error || 'Update failed');
+                    }
+                    fetchFaults(); // Refresh to get latest data
                     return;
                 }
 
-                // --- SUCCESS: Show green message with days outstanding ---
-                const days = data.days_outstanding || 0;
-                showMessage(
-                    `✅ Fault reported successfully! (ID: ${data.fault.fault_id}) — Outstanding for ${days} day${days !== 1 ? 's' : ''}.`,
-                    'success'
-                );
-
-                // Clear the form (only on success)
-                form.reset();
-                document.getElementById('reported_date').value = new Date().toISOString().split('T')[0];
-                document.getElementById('pole_id').focus();
+                alert(`✅ Fault #${id} marked as ${newStatus}!`);
+                fetchFaults(); // Refresh the list
 
             } catch (error) {
-                // --- NETWORK ERROR: Show red message, NEVER say success ---
-                showMessage('❌ Network error. Please check your connection and try again.', 'error');
-                console.error('Fetch error:', error);
-            } finally {
-                // --- Reset button state ---
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit Report';
+                alert('❌ Network error. Please check your connection.');
+                console.error('Update error:', error);
             }
+        }
+
+        // ---- Render the table ----
+        function renderTable(faults) {
+            if (!faults || faults.length === 0) {
+                // ---- EMPTY STATE ----
+                tableContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📭 No faults found</h3>
+                        <p>Try adjusting your search or filter criteria.</p>
+                        <button onclick="clearFilters()">Clear Filters</button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Pole</th>
+                            <th>Ward</th>
+                            <th>Street</th>
+                            <th>Fault Type</th>
+                            <th>Status</th>
+                            <th>Reported</th>
+                            <th>Days</th>
+                            <th>Repaired</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            faults.forEach(f => {
+                const statusClass = `status-${f.status.replace(/\s/g, '')}`;
+                const days = f.days_outstanding || 0;
+                const daysClass = days === 0 ? 'days-badge zero' : 'days-badge';
+                
+                // Highlight rows with no ward (awkward case)
+                const highlightClass = !f.ward ? 'highlight' : '';
+
+                html += `
+                    <tr class="${highlightClass}">
+                        <td><strong>${f.fault_id}</strong></td>
+                        <td>${f.pole_id || 'N/A'}</td>
+                        <td>${f.ward || '<span class="missing">(missing)</span>'}</td>
+                        <td>${f.street || 'N/A'}</td>
+                        <td>${f.fault_type || 'N/A'}</td>
+                        <td><span class="status-badge ${statusClass}">${f.status}</span></td>
+                        <td>${f.reported_date}</td>
+                        <td class="${daysClass}">${days} day${days !== 1 ? 's' : ''}</td>
+                        <td>
+                            ${f.repaired_date || '—'}
+                            ${f.status !== 'Repaired' ? `<button onclick="updateStatus(${f.fault_id}, 'Repaired', ${f.version})" class="repair-btn">✅ Fix</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            tableContainer.innerHTML = html;
+        }
+
+        // ---- Clear filters ----
+        function clearFilters() {
+            searchInput.value = '';
+            statusFilter.value = '';
+            fetchFaults();
+        }
+
+        // ---- Event listeners ----
+        searchBtn.addEventListener('click', fetchFaults);
+        clearBtn.addEventListener('click', clearFilters);
+        refreshBtn.addEventListener('click', fetchFaults);
+
+        // Enter key in search triggers search
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') fetchFaults();
         });
 
-        function showMessage(text, type) {
-            messageEl.textContent = text;
-            messageEl.className = type; // 'success' or 'error'
-            messageEl.style.display = 'block';
-        }
+        // Status filter change triggers search automatically
+        statusFilter.addEventListener('change', fetchFaults);
+
+        // ---- Load on page load ----
+        fetchFaults();
     </script>
 
 </body>
